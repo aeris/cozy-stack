@@ -188,6 +188,25 @@ func fsckHandler(c echo.Context) error {
 	return c.JSON(http.StatusOK, list)
 }
 
+func statsHandler(c echo.Context) error {
+	domain := c.Param("domain")
+	i, err := instance.Get(domain)
+	if err != nil {
+		return wrapError(err)
+	}
+	var _ = i
+
+	stats := struct {
+		Apps int
+	}{10}
+	err = nil
+	//stats, err := i.Stats()
+	if err != nil {
+		return wrapError(err)
+	}
+	return c.JSON(http.StatusOK, stats)
+}
+
 func rebuildRedis(c echo.Context) error {
 	instances, err := instance.List()
 	if err != nil {
@@ -230,6 +249,7 @@ func Routes(router *echo.Group) {
 	router.PATCH("/:domain", modifyHandler)
 	router.DELETE("/:domain", deleteHandler)
 	router.GET("/:domain/fsck", fsckHandler)
+	router.GET("/:domain/stats", statsHandler)
 	router.POST("/updates", updatesHandler)
 	router.POST("/token", createToken)
 	router.POST("/oauth_client", registerClient)

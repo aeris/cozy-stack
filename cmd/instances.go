@@ -528,6 +528,26 @@ var importCmd = &cobra.Command{
 	},
 }
 
+var statsInstanceCmd = &cobra.Command{
+	Use: "stats [domain]",
+	Short: "Statistics for a instance",
+	Long: "Get statistics for a instance like number of installed apps, connected konnectors, desktop installed, ...",
+	RunE: func(cmd *cobra.Command, args []string) error {
+		if len(args) == 0 {
+			return cmd.Usage()
+		}
+		domain := args[0]
+		c := newAdminClient()
+		stats, err := c.Stats(domain)
+		if err != nil {
+			return err
+		}
+		json, err := json.MarshalIndent(stats, "", "  ")
+		fmt.Println(string(json))
+		return nil
+	},
+}
+
 func init() {
 	instanceCmdGroup.AddCommand(showInstanceCmd)
 	instanceCmdGroup.AddCommand(addInstanceCmd)
@@ -539,12 +559,14 @@ func init() {
 	instanceCmdGroup.AddCommand(fsckInstanceCmd)
 	instanceCmdGroup.AddCommand(appTokenInstanceCmd)
 	instanceCmdGroup.AddCommand(cliTokenInstanceCmd)
+	instanceCmdGroup.AddCommand(statsInstanceCmd)
 	instanceCmdGroup.AddCommand(oauthTokenInstanceCmd)
 	instanceCmdGroup.AddCommand(oauthRefreshTokenInstanceCmd)
 	instanceCmdGroup.AddCommand(oauthClientInstanceCmd)
 	instanceCmdGroup.AddCommand(updateCmd)
 	instanceCmdGroup.AddCommand(exportCmd)
 	instanceCmdGroup.AddCommand(importCmd)
+
 	addInstanceCmd.Flags().StringVar(&flagLocale, "locale", instance.DefaultLocale, "Locale of the new cozy instance")
 	addInstanceCmd.Flags().StringVar(&flagTimezone, "tz", "", "The timezone for the user")
 	addInstanceCmd.Flags().StringVar(&flagEmail, "email", "", "The email of the owner")
@@ -554,16 +576,25 @@ func init() {
 	addInstanceCmd.Flags().StringSliceVar(&flagApps, "apps", nil, "Apps to be preinstalled")
 	addInstanceCmd.Flags().BoolVar(&flagDev, "dev", false, "To create a development instance")
 	addInstanceCmd.Flags().StringVar(&flagPassphrase, "passphrase", "", "Register the instance with this passphrase (useful for tests)")
+
 	destroyInstanceCmd.Flags().BoolVar(&flagForce, "force", false, "Force the deletion without asking for confirmation")
+
 	fsckInstanceCmd.Flags().BoolVar(&flagDry, "dry", false, "Don't modify the VFS, only show the inconsistencies")
+
 	appTokenInstanceCmd.Flags().DurationVar(&flagExpire, "expire", 0, "Make the token expires in this amount of time")
+
 	oauthTokenInstanceCmd.Flags().DurationVar(&flagExpire, "expire", 0, "Make the token expires in this amount of time")
+
 	oauthClientInstanceCmd.Flags().BoolVar(&flagJSON, "json", false, "Output more informations in JSON format")
+
 	updateCmd.Flags().BoolVar(&flagAllDomains, "all-domains", false, "Work on all domains iterativelly")
 	updateCmd.Flags().StringVar(&flagDomain, "domain", "", "Specify the domain name of the instance")
 	updateCmd.Flags().BoolVar(&flagForceRegistry, "force-registry", false, "Force to update all applications sources from git to the registry")
+
 	exportCmd.Flags().StringVar(&flagDomain, "domain", "", "Specify the domain name of the instance")
+
 	importCmd.Flags().StringVar(&flagDomain, "domain", "", "Specify the domain name of the instance")
 	importCmd.Flags().StringVar(&flagDirectory, "directory", "", "Put the imported files inside this directory")
+
 	RootCmd.AddCommand(instanceCmdGroup)
 }

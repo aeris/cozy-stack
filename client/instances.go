@@ -304,6 +304,25 @@ func (c *Client) RebuildRedis() error {
 	return err
 }
 
+// Statistics for the instance
+func (c *Client) Stats(domain string) (map[string]interface{}, error) {
+	if !validDomain(domain) {
+		return nil, fmt.Errorf("Invalid domain: %s", domain)
+	}
+	res, err := c.Req(&request.Options{
+		Method:     "GET",
+		Path:       "/instances/" + domain + "/stats",
+	})
+	if err != nil {
+		return nil, err
+	}
+	var stats map[string]interface{}
+	if err = json.NewDecoder(res.Body).Decode(&stats); err != nil {
+		return nil, err
+	}
+	return stats, nil
+}
+
 func readInstance(res *http.Response) (*Instance, error) {
 	in := &Instance{}
 	if err := readJSONAPI(res.Body, &in); err != nil {
