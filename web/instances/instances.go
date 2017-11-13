@@ -19,6 +19,14 @@ type apiInstance struct {
 	*instance.Instance
 }
 
+type statsInstance struct {
+	Desktop bool
+	Mobile bool
+	Konnectors []string
+	Mail bool
+	Language string
+}
+
 func (i *apiInstance) MarshalJSON() ([]byte, error) {
 	return json.Marshal(i.Instance)
 }
@@ -194,13 +202,15 @@ func statsHandler(c echo.Context) error {
 	if err != nil {
 		return wrapError(err)
 	}
-	var _ = i
 
-	stats := struct {
-		Apps int
-	}{10}
-	err = nil
-	//stats, err := i.Stats()
+	stats := statsInstance{
+		Desktop: true,
+		Mobile: true,
+		Konnectors: make([]string, 0),
+		Language: i.Locale,
+		Mail: true,
+	}
+
 	if err != nil {
 		return wrapError(err)
 	}
