@@ -539,10 +539,9 @@ var statsInstanceCmd = &cobra.Command{
 		domain := args[0]
 		c := newAdminClient()
 		stats, err := c.Stats(domain)
-		if err != nil {
-			return err
-		}
+		if err != nil { return err }
 		json, err := json.MarshalIndent(stats, "", "  ")
+		if err != nil { return err }
 		fmt.Println(string(json))
 		return nil
 	},

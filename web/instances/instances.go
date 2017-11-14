@@ -211,9 +211,6 @@ func statsHandler(c echo.Context) error {
 		Mail: true,
 	}
 
-	if err != nil {
-		return wrapError(err)
-	}
 	return c.JSON(http.StatusOK, stats)
 }
 
